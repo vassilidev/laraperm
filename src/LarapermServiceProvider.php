@@ -13,6 +13,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
 use Vassilidev\Laraperm\Commands\InstallLarapermCommand;
 use Vassilidev\Laraperm\Commands\UninstallLarapermCommand;
+use Vassilidev\Laraperm\Facades\Laraperm;
 
 class LarapermServiceProvider extends ServiceProvider
 {
@@ -27,7 +28,7 @@ class LarapermServiceProvider extends ServiceProvider
 
         $this->registerMacro();
 
-        $this->callAfterResolving(Gate::class, static function (Gate $gate, Application $app) {
+        $this->callAfterResolving(Gate::class, function (Gate $gate, Application $app) {
             $gate->before(fn(Authorizable $authorizable, string $ability) => Laraperm::authorize($authorizable, $ability));
         });
     }
