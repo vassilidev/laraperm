@@ -5,7 +5,7 @@ namespace Vassilidev\Laraperm\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 
-class LarapermCommand extends Command
+class RemoveLarapermCommand extends Command
 {
     public $signature = 'laraperm:uninstall';
 

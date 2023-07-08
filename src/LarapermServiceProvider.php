@@ -8,7 +8,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
-use Vassilidev\Laraperm\Commands\LarapermCommand;
+use Vassilidev\Laraperm\Commands\RemoveLarapermCommand;
 
 class LarapermServiceProvider extends ServiceProvider
 {
@@ -60,7 +60,7 @@ class LarapermServiceProvider extends ServiceProvider
     protected function registerCommands(): void
     {
         $this->commands([
-            LarapermCommand::class,
+            RemoveLarapermCommand::class,
         ]);
     }
 
