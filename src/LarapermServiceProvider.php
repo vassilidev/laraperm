@@ -2,7 +2,6 @@
 
 namespace Vassilidev\Laraperm;
 
-use App\Models\User;
 use Illuminate\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Access\Authorizable;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -14,7 +13,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
 use Vassilidev\Laraperm\Commands\InstallLarapermCommand;
 use Vassilidev\Laraperm\Commands\UninstallLarapermCommand;
-use Vassilidev\Laraperm\Traits\HasPerm;
 
 class LarapermServiceProvider extends ServiceProvider
 {
@@ -30,22 +28,7 @@ class LarapermServiceProvider extends ServiceProvider
         $this->registerMacro();
 
         $this->callAfterResolving(Gate::class, static function (Gate $gate, Application $app) {
-            $gate->before(function (Authorizable $authorizable, string $ability) {
-                if (!is_a($authorizable, User::class)) {
-                    return null;
-                }
-
-                if (!in_array(HasPerm::class, class_uses_recursive($authorizable), true)) {
-                    return null;
-                }
-
-                /** @var User $authorizable */
-                if ($authorizable->isSuperAdmin()) {
-                    return true;
-                }
-
-                return $authorizable->hasDirectPermission($ability) || $authorizable->hasPermissionViaRole($ability);
-            });
+            $gate->before(fn(Authorizable $authorizable, string $ability) => Laraperm::authorize($authorizable, $ability));
         });
     }
 
