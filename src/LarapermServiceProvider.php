@@ -2,13 +2,19 @@
 
 namespace Vassilidev\Laraperm;
 
+use App\Models\User;
+use Illuminate\Auth\Access\Gate;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Foundation\Application;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
-use Vassilidev\Laraperm\Commands\RemoveLarapermCommand;
+use Vassilidev\Laraperm\Commands\InstallLarapermCommand;
+use Vassilidev\Laraperm\Commands\UninstallLarapermCommand;
+use Vassilidev\Laraperm\Traits\HasPerm;
 
 class LarapermServiceProvider extends ServiceProvider
 {
@@ -22,6 +28,25 @@ class LarapermServiceProvider extends ServiceProvider
         $this->registerCommands();
 
         $this->registerMacro();
+
+        $this->callAfterResolving(Gate::class, static function (Gate $gate, Application $app) {
+            $gate->before(function (Authorizable $authorizable, string $ability) {
+                if (!is_a($authorizable, User::class)) {
+                    return null;
+                }
+
+                if (!in_array(HasPerm::class, class_uses_recursive($authorizable), true)) {
+                    return null;
+                }
+
+                /** @var User $authorizable */
+                if ($authorizable->isSuperAdmin()) {
+                    return true;
+                }
+
+                return $authorizable->hasDirectPermission($ability) || $authorizable->hasPermissionViaRole($ability);
+            });
+        });
     }
 
     public function register(): void
@@ -60,7 +85,8 @@ class LarapermServiceProvider extends ServiceProvider
     protected function registerCommands(): void
     {
         $this->commands([
-            RemoveLarapermCommand::class,
+            InstallLarapermCommand::class,
+            UninstallLarapermCommand::class,
         ]);
     }
 
@@ -70,7 +96,8 @@ class LarapermServiceProvider extends ServiceProvider
      */
     protected function registerBladeExtensions(BladeCompiler $bladeCompiler): void
     {
-/*        $bladeCompiler->directive('laraperm', fn($args) => "<?php echo 'Hello !'; ?>");*/
+        $bladeCompiler->directive('permission', fn($args) => "<?php if(auth()->check() && auth()->user()->can($args)): ?>");
+        $bladeCompiler->directive('endpermission', fn() => "<?php endif; ?>");
     }
 
     protected function registerMacro(): void

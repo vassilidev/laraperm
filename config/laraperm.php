@@ -1,6 +1,7 @@
 <?php
 
-// config for Vassilidev/Laraperm
 return [
-
+    'permissions' => [
+        'super-admin' => env('LARAPERM_PERMISSION_SUPERADMIN', '*'),
+    ]
 ];

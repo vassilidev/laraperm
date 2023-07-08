@@ -5,7 +5,7 @@ namespace Vassilidev\Laraperm\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 
-class RemoveLarapermCommand extends Command
+class UninstallLarapermCommand extends Command
 {
     public $signature = 'laraperm:uninstall';
 
@@ -13,10 +13,15 @@ class RemoveLarapermCommand extends Command
 
     public function handle(): int
     {
+        $emptyTable = $this->confirm('Did you remove all the tables ?');
+
+        if (!$emptyTable) {
+            return self::INVALID;
+        }
+
         $filesystem = app(Filesystem::class);
 
         $configFile = config_path('laraperm.php');
-
 
         if ($filesystem->exists($configFile)) {
             $filesystem->delete($configFile);
