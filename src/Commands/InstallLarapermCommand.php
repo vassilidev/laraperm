@@ -3,6 +3,7 @@
 namespace Vassilidev\Laraperm\Commands;
 
 use Illuminate\Console\Command;
+use Vassilidev\Laraperm\LarapermServiceProvider;
 
 class InstallLarapermCommand extends Command
 {
@@ -13,7 +14,7 @@ class InstallLarapermCommand extends Command
     public function handle(): int
     {
         $this->call('vendor:publish', [
-            '--provider' => 'Vassilidev\Laraperm\LarapermServiceProvider'
+            '--provider' => LarapermServiceProvider::class
         ]);
 
         if ($this->confirm('Should we run the migrations ?', default: true)) {
