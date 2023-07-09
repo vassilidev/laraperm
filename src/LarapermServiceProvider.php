@@ -82,6 +82,9 @@ class LarapermServiceProvider extends ServiceProvider
     {
         $bladeCompiler->directive('permission', fn($args) => "<?php if(auth()->check() && auth()->user()->can($args)): ?>");
         $bladeCompiler->directive('endpermission', fn() => "<?php endif; ?>");
+
+        $bladeCompiler->directive('superadmin', fn() => "<?php if(auth()->check() && auth()->user()->isSuperAdmin()): ?>");
+        $bladeCompiler->directive('endsuperadmin', fn() => "<?php endif; ?>");
     }
 
     protected function registerMacro(): void
